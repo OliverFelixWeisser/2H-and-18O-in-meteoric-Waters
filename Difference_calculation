@@ -1,0 +1,101 @@
+#---------------------------------------------------------------------------------------------------------
+# In this file, the difference is calculated from the different timeseries, to create the change data set
+#---------------------------------------------------------------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from caculate_timeseries import *
+def load_dataa():
+    # Data old
+    dfalt = dfalT
+    dfalt['H2a']=dfalt['Value']
+    return dfalt 
+
+def load_datan():
+    # Data new 
+    dfneu = dfneU
+    dfneu['H2n']=dfneu['Value']
+    return dfneu 
+
+def recomb_data(dfneu, dfalt):
+    dfdiff = pd.merge(dfalt, dfneu, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiff["Diff"] = ((dfdiff['H2a']-dfdiff['H2n'])*-1)
+    dfdiff=dfdiff.reset_index()
+    del dfdiff["Value_x"]
+    del dfdiff["Value_y"]
+    del dfdiff["index_x"]
+    del dfdiff["index_y"]
+    del dfdiff["index"]
+
+    return dfdiff
+
+def load_dataae():
+    # Daten Alt
+    dfalte = dfalTe
+    dfalte['H2a']=dfalte['Value']
+    return dfalte
+
+def load_datane():
+    # Daten neu 
+    dfneue = dfneUe
+    dfneue['H2n']=dfneue['Value']
+    return dfneue 
+
+def recomb_data(dfneue, dfalte):
+    dfdiffe = pd.merge(dfalte, dfneue, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffe["Diff"] = ((dfdiffe['H2a']-dfdiffe['H2n'])*-1)
+    dfdiffe=dfdiffe.reset_index()
+    del dfdiffe["Value_x"]
+    del dfdiffe["Value_y"]
+    del dfdiffe["index_x"]
+    del dfdiffe["index_y"]
+    del dfdiffe["index"]
+
+    return dfdiffe
+
+def load_dataus():
+    # Data old
+    dfaltus = dfalUS
+    dfaltus['H2a']=dfaltus['Value']
+    return dfaltus
+
+def load_datanus():
+    # Data new
+    dfneuus = dfnUS
+    dfneuus['H2n']=dfneuus['Value']
+    return dfneuus 
+
+def recomb_data(dfaltus, dfneuus):
+    dfdiffus = pd.merge(dfaltus, dfneuus, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffus["Diff"] = ((dfdiffus['H2a']-dfdiffus['H2n'])*-1)
+    dfdiffus=dfdiffus.reset_index()
+    del dfdiffus["Value_x"]
+    del dfdiffus["Value_y"]
+    del dfdiffus["index_x"]
+    del dfdiffus["index_y"]
+    del dfdiffus["index"]
+
+    return dfdiffus
+
+
+dfalt = load_dataa()
+dfneu = load_datan()
+dfdiff = recomb_data(dfneu, dfalt)
+print(dfdiff)
+
+dfalte = load_dataae()
+dfneue = load_datane()
+dfdiffe = recomb_data(dfneue, dfalte)
+print(dfdiffe)
+
+dfaltus = load_dataus()
+dfneuus = load_datanus()
+dfdiffus = recomb_data(dfneuus, dfaltus)
+print(dfdiffus)
