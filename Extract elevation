@@ -1,0 +1,451 @@
+#-----------------------------------------------------------------------------------
+# In this file the height data is extracted and the second height correction is made
+#-----------------------------------------------------------------------------------
+import imp
+import numpy as np
+from netCDF4 import Dataset
+import matplotlib.pyplot as plt
+import pandas as pd
+from mpl_toolkits.basemap import Basemap
+from matplotlib.patches import Path, PathPatch
+from Subfunctions.Difference_calculation import *
+
+csv_data = dfdiff
+
+#csv_data = np.loadtxt('./Grids/H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv'
+,skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['H2a']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dfl= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfl)
+
+dfl["a_diffO"] = (dfl["Altitude"] *-0.002) 
+sum_column = (dfl["Value"]+ dfl["a_diffO"])
+dfl['H2ad'] = sum_column
+df = dfl.drop('a_diffO',inplace=True, axis=1)
+print(dfl)
+
+# dfl.to_csv('./Classified/Grids/Elevation/Ele_grid_ww.csv')
+
+csv_data = dfdiff
+
+#csv_data = np.loadtxt('./Grids/H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['H2n']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dfln= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfln)
+
+dfln["a_diffO"] = (dfln["Altitude"] *-0.002) 
+sum_column = (dfln["Value"]+ dfln["a_diffO"])
+dfln['H2nd'] = sum_column
+df = dfln.drop('a_diffO',inplace=True, axis=1)
+print(dfln)
+
+
+csv_data = dfdiff
+
+#csv_data = np.loadtxt('./Grids/H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dfld= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfld)
+
+dfld["a_diffO"] = (dfld["Altitude"] *-0.002) 
+sum_column = (dfld["Value"]+ dfld["a_diffO"])
+dfld['H2d'] = sum_column
+df = dfld.drop('a_diffO',inplace=True, axis=1)
+print(dfld)
+
+
+csv_data = dfdiffe
+
+#csv_data = np.loadtxt('./Grids/H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['H2a']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dfle= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfle)
+
+dfle["a_diffO"] = (dfle["Altitude"] *-0.002) 
+sum_column = (dfle["Value"]+ dfle["a_diffO"])
+dfle['H2ad'] = sum_column
+df = dfle.drop('a_diffO',inplace=True, axis=1)
+print(dfle)
+
+
+csv_data = dfdiffe
+
+#csv_data = np.loadtxt('./H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['H2n']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflne= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflne)
+
+dflne["a_diffO"] = (dflne["Altitude"] *-0.002) 
+sum_column = (dflne["Value"]+ dflne["a_diffO"])
+dflne['H2nd'] = sum_column
+df = dflne.drop('a_diffO',inplace=True, axis=1)
+print(dflne)
+
+
+csv_data = dfdiffe
+
+#csv_data = np.loadtxt('./H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflde= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflde)
+
+dflde["a_diffO"] = (dflde["Altitude"] *-0.002) 
+sum_column = (dflde["Value"]+ dflde["a_diffO"])
+dflde['H2d'] = sum_column
+df = dflde.drop('a_diffO',inplace=True, axis=1)
+print(dflde)
+
+
+csv_data = dfdiffus
+
+#csv_data = np.loadtxt('./H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['H2a']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflus= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflus)
+
+dflus["a_diffO"] = (dflus["Altitude"] *-0.002) 
+sum_column = (dflus["Value"]+ dflus["a_diffO"])
+dflus['H2ad'] = sum_column
+df = dflus.drop('a_diffO',inplace=True, axis=1)
+print(dflus)
+
+
+csv_data = dfdiffus
+
+#csv_data = np.loadtxt('./H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['H2n']
+
+data = Dataset("./Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflnus= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflnus)
+
+dflnus["a_diffO"] = (dflnus["Altitude"] *-0.002) 
+sum_column = (dflnus["Value"]+ dflnus["a_diffO"])
+dflnus['H2nd'] = sum_column
+df = dflnus.drop('a_diffO',inplace=True, axis=1)
+print(dflnus)
+
+csv_data = dfdiffus
+
+#csv_data = np.loadtxt('./H2/Target_Grid/Weltweit/Dezember/1964_12_H2grid.csv',
+skiprows=1,delimiter=',')
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+
+data = Dataset(".Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dfldus= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfldus)
+
+dfldus["a_diffO"] = (dfldus["Altitude"] *-0.002) 
+sum_column = (dfldus["Value"]+ dfldus["a_diffO"])
+dfldus['H2d'] = sum_column
+df = dfldus.drop('a_diffO',inplace=True, axis=1)
+print(dfldus)
