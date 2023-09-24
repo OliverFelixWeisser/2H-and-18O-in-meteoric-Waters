@@ -1,0 +1,193 @@
+#-----------------------------------------------------------------
+# The maps are interpolated in this file. 
+# These interpolated files are then saved as CSV files. 
+#-----------------------------------------------------------------
+from genericpath import isfile
+from ntpath import join
+from os import listdir
+from traceback import print_tb
+import numpy as np
+from pykrige.ok import OrdinaryKriging
+from pykrige.kriging_tools import write_asc_grid
+import pykrige.kriging_tools as kt
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
+from matplotlib.patches import Path, PathPatch
+import pandas as pd
+from os import listdir
+
+def load_data(file):
+    df = pd.read_csv(file)
+    return(df)
+
+def get_data(df):
+    #todo import data
+    return {
+        "lons": df['Longitude'],
+        "lats": df['Latitude'],
+        "values": df['O18a'],
+    }
+
+def extend_data(data):
+    # Copy data to the "left" and "right" to allow for interpolation to the edges 
+    of the map
+    return {
+        "lons": np.concatenate([np.array( data["lons"])]),
+        "lats":  np.concatenate([data["lats"]]),
+        "values":  np.concatenate([data["values"]]),
+    }
+
+def generate_grid(data, basemap, delta=1):
+    grid = {
+        'lon': np.arange(-180, 180, delta),
+        'lat': np.arange(-89.9,89.9, delta) # dont extrapolate towards the poles
+    }
+    grid["x"], grid["y"] = np.meshgrid(grid["lon"], grid["lat"])
+    grid["x"], grid["y"] = basemap(grid["x"], grid["y"])
+    return grid
+
+def interpolate(data, grid):
+    OK =OrdinaryKriging(
+        data["lons"],
+        data["lats"],
+        data["values"],
+        variogram_model='exponential',
+        nlags=40, 
+        pseudo_inv=True,
+        weight=True,
+        verbose=True,
+    )
+    return OK.execute("grid", grid["lon"], grid["lat"])
+
+
+def inter_todf(interpolation, grid):
+    grid['x'], grid['y'] = basemap(grid['x'],grid['y'],inverse=True) 
+    # Wandelt Grid 
+    in Long und Lat wieder um 
+    dfl = pd.DataFrame({
+        'Latitude': grid['y'].reshape(-1),
+        'Longitude': grid['x'].reshape(-1),
+        'Value': interpolation.reshape(-1)
+        });
+    return(dfl)
+
+def prepare_map_plot():
+    figure, axes = plt.subplots(figsize=(10,10))
+    basemap = Basemap(projection='robin', lon_0=0,
+    lat_0=0, resolution='h',area_thresh=1000.,ax=axes)
+    basemap.drawcoastlines() 
+    basemap.drawparallels(np.arange(-90.,120.,30.))
+    basemap.drawmeridians(np.arange(0.,420.,60.))
+    return figure, axes, basemap
+
+data_folder = './Grids/O18/Month/9/'
+plot_folder = './O18/Target_Grid/Weltweit/'
+
+def find_filenames( path_to_dir, suffix ):
+    filenames = listdir(path_to_dir)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
+
+for file in find_filenames(data_folder, '.csv'):
+    df = load_data(data_folder + file)
+    base_data = get_data(df)
+    figure, axes, basemap = prepare_map_plot()
+    grid = generate_grid(base_data, basemap,1)
+    extended_data = extend_data(base_data)
+    interpolation, interpolation_error = interpolate(extended_data, grid)
+    dfl= inter_todf(interpolation, grid)
+    dfl.to_csv(plot_folder+'September/'+file.replace(".csv", "grid.csv"))
+# Europe ------------------------------------------------------------------------------- 
+from genericpath import isfile
+from ntpath import join
+from os import listdir
+from traceback import print_tb
+import numpy as np
+from pykrige.ok import OrdinaryKriging
+from pykrige.kriging_tools import write_asc_grid
+import pykrige.kriging_tools as kt
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
+from matplotlib.patches import Path, PathPatch
+import pandas as pd
+
+from os import listdir
+
+def load_data(file):
+    df = pd.read_csv(file)
+    return(df)
+
+def get_data(df):
+    #todo import data
+    return {
+        "lons": df['Longitude'],
+        "lats": df['Latitude'],
+        "values": df['O18a'],
+    }
+
+def extend_data(data):
+    # Copy data to the "left" and "right" to allow for interpolation to the
+    edges of the map
+    return {
+        "lons": np.concatenate([np.array( data["lons"])]),
+        "lats":  np.concatenate([data["lats"]]),
+        "values":  np.concatenate([data["values"]]),
+    }
+
+def generate_grid(data, basemap, delta=1):
+    grid = {
+        'lon': np.arange(-30, 60, delta),
+        'lat': np.arange(30,70, delta) # dont extrapolate towards the poles
+    }
+    grid["x"], grid["y"] = np.meshgrid(grid["lon"], grid["lat"])
+    grid["x"], grid["y"] = basemap(grid["x"], grid["y"])
+    return grid
+
+def interpolate(data, grid):
+    OK =OrdinaryKriging(
+        data["lons"],
+        data["lats"],
+        data["values"],
+        variogram_model='exponential',
+        nlags=40, 
+        pseudo_inv=True,
+        weight=True,
+        verbose=True,
+    )
+    return OK.execute("grid", grid["lon"], grid["lat"])
+
+
+def inter_todf(interpolation, grid):
+    grid['x'], grid['y'] = basemap(grid['x'],grid['y'],inverse=True) # Wandelt
+    Grid in Long und Lat wieder um 
+    dfl = pd.DataFrame({
+        'Latitude': grid['y'].reshape(-1),
+        'Longitude': grid['x'].reshape(-1),
+        'Value': interpolation.reshape(-1)
+        });
+    return(dfl)
+
+def prepare_map_plot():
+    figure, axes = plt.subplots(figsize=(10,10))
+    basemap = Basemap(projection='robin', lon_0=0,
+    lat_0=0, resolution='h',area_thresh=1000.,ax=axes)
+    basemap.drawcoastlines() 
+    basemap.drawparallels(np.arange(-90.,120.,30.))
+    basemap.drawmeridians(np.arange(0.,420.,60.))
+    return figure, axes, basemap
+
+data_folder = './Grids/O18/Month/9/'
+plot_folder = './O18/Target_Grid/Europa/'
+
+def find_filenames( path_to_dir, suffix ):
+    filenames = listdir(path_to_dir)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
+
+for file in find_filenames(data_folder, '.csv'):
+    df = load_data(data_folder + file)
+    base_data = get_data(df)
+    figure, axes, basemap = prepare_map_plot()
+    grid = generate_grid(base_data, basemap,0.1)
+    extended_data = extend_data(base_data)
+    interpolation, interpolation_error = interpolate(extended_data, grid)
+    dfl= inter_todf(interpolation, grid)
+    dfl.to_csv(plot_folder+'September/'+file.replace(".csv", "grid.csv"))
