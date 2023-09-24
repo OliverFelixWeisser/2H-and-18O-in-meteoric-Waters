@@ -1,0 +1,80 @@
+#------------------------------------------------------
+# In this file, the prepared data are displayed as maps
+#------------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from mpl_toolkits.basemap import Basemap
+from matplotlib.patches import Path, PathPatch
+from matplotlib.patches import Polygon
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import PathPatch
+from matplotlib import colors
+from Subfunctions.Extract_elevation import *
+
+def load_data():
+    dflm = dflne
+    return dflm
+
+def get_data(dflm):
+    return {
+        "lons": dflm['Longitude'].values,
+        "lats": dflm['Latitude'].values,
+        "values": dflm['H2nd'].values
+    }
+
+def generate_grid(data, basemap, delta=1):
+    grid["x"], grid["y"] = (data["lons"], data["lats"])
+    grid["x"], grid["y"] = basemap(grid["x"], grid["y"])
+    return grid
+
+def prepare_map_plot():
+    figure, axes = plt.subplots(figsize=(10,10)) 
+    basemap = Basemap( llcrnrlon=-30, llcrnrlat=30,
+    urcrnrlon=60,urcrnrlat=70, resolution='l',area_thresh=1000, ax=axes)
+    basemap.drawcoastlines()
+    basemap.drawmapboundary(fill_color='white') 
+    basemap.drawparallels(np.arange(-90.,120.,30.))
+    basemap.drawmeridians(np.arange(0.,420.,60.))
+    return figure, axes, basemap
+
+def plot_mesh_data(data, grid, basemap):
+    levels = [-140, -138, -136, -134, -132, -130, -128, -126, -124,
+    -122,-120, -118, -116, -114, -112, -110, -108, -106, -104, -102,
+    -100, -98, -96, -94, -92, -90, -88, -86, -84, -82, -80, -78, -76, -74,
+     -72, -70, -68, -66, -64, -62, -60, -58, -56, -54, -52, -50, -48,
+     -46, -44, -42, -40, -38, -36, -34, -32, -30, -28, -26, -24, -22, -20, -18,
+      -16, -14, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10]
+    #divnorm=colors.TwoSlopeNorm(vmin=-70., vcenter=0., vmax=10)
+    colormesh = basemap.contourf(grid["x"].reshape(400,900), grid["y"].
+    reshape(400,900),  data['values'].reshape(400,900), levels=levels, cmap='RdBu_r', )
+    color_bar = basemap.colorbar(colormesh,location='bottom',pad="10%") 
+
+def mask_oceans(axes, basemap):
+    # Copied from https://www.earthinversion.com/geophysics/
+    plotting-the-geospatial-data-clipped-by-coastlines-in-python/#reading-data
+    x0,x1 = axes.get_xlim()
+    y0,y1 = axes.get_ylim()
+    map_edges = np.array([[x0,y0],[x1,y0],[x1,y1],[x0,y1]])
+    polys = [p.boundary for p in basemap.landpolygons]
+    polys = [map_edges]+polys[:]
+    codes = [
+        [Path.MOVETO]+[Path.LINETO for p in p[1:]]
+        for p in polys
+    ]
+    polys_lin = [v for p in polys for v in p]
+    codes_lin = [xx for cs in codes for xx in cs]
+    path = Path(polys_lin, codes_lin)
+    patch = PathPatch(path,facecolor='white', lw=0)
+    axes.add_patch(patch)
+
+dflm = load_data()
+print(dflm)
+grid = {}
+base_data = get_data(dflm)
+figure, axes, basemap = prepare_map_plot()
+grid = generate_grid(base_data, basemap, 90)
+plot_mesh_data(base_data, grid,basemap)
+mask_oceans(axes, basemap)
+plt.show()
