@@ -1,0 +1,166 @@
+#--------------------------------------------------------------------------------------------
+# In this file, the timeseries are generated from the previously interpolated maps. 
+#and prepared for further display
+#--------------------------------------------------------------------------------------------
+import pandas as pd
+import glob
+import os
+def load_data():
+    path = r'./Grids/H2/Target_Grid/Weltweit/All'
+    all_files = glob.glob(path + "/*.csv")
+
+    data = [] # pd.concat takes a list of dataframes as an argument
+    for csv in all_files:
+        frame = pd.read_csv(csv)
+        frame['filename'] = os.path.basename(csv)
+        data.append(frame)
+    dfn = pd.concat(data, ignore_index=True) 
+    #dont want pandas to try an align row indexes
+    return(dfn)
+
+def load_datae():
+    path = r'./Grids/H2/Target_Grid/Europa/All'
+    all_files = glob.glob(path + "/*.csv")
+
+    data = [] # pd.concat takes a list of dataframes as an argument
+    for csv in all_files:
+        frame = pd.read_csv(csv)
+        frame['filename'] = os.path.basename(csv)
+        data.append(frame)
+    dfne = pd.concat(data, ignore_index=True) 
+    #dont want pandas to try an align row indexes
+    return(dfne)
+
+def load_dataus():
+    path = r'./Grids/H2/Target_Grid/US/All'
+    all_files = glob.glob(path + "/*.csv")
+
+    data = [] 
+    # pd.concat takes a list of dataframes as an argument
+    for csv in all_files:
+        frame = pd.read_csv(csv)
+        frame['filename'] = os.path.basename(csv)
+        data.append(frame)
+    dfnus = pd.concat(data, ignore_index=True)
+    #dont want pandas to try an align row indexes
+    return(dfnus)
+
+def Timeseries(dfn):
+    df = dfn
+    df_00_10=df.loc[df['filename'].isin(['1973_12_H2grid.csv','1974_12_H2grid.csv',
+    '1975_12_H2grid.csv', '1976_12_H2grid.csv','1977_12_H2grid.csv',
+    '1978_12_H2grid.csv','1979_12_H2grid.csv','
+    1980_12_H2grid.csv', 1973_1_H2grid.csv','1974_1_H2grid.csv','1975_1_H2grid.csv',
+    '1976_1_H2grid.csv','1977_1_H2grid.csv','1978_1_H2grid.csv',   
+    '1979_1_H2grid.csv', '1980_1_H2grid.csv',  '1973_2_H2grid.csv',
+    '1974_2_H2grid.csv',  '1975_2_H2grid.csv','1976_2_H2grid.csv',
+    '1977_2_H2grid.csv','1978_2_H2grid.csv','1970_2_H2grid.csv',
+    '1980_2_H2grid.csv'])]
+    dfalT=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value']
+    .mean().reset_index()
+    #df_00_10g.to_csv('./Grids/H2/Target_Grid/Dezember/Mean_1960.csv')
+    return dfalT
+
+def Timeseries_z(dfn):
+    df = dfn
+    df_00_10=df.loc[df['filename'].isin(['2009_12_H2grid.csv','2010_12_H2grid.csv',
+    '2011_12_H2grid.csv','2012_12_H2grid.csv','2013_12_H2grid.csv',
+    '2014_12_H2grid.csv','2015_12_H2grid.csv','2016_12_H2grid.csv',
+    '2009_1_H2grid.csv','2010_1_H2grid.csv','2011_1_H2grid.csv',
+    '2012_1_H2grid.csv','2013_1_H2grid.csv','2014_1_H2grid.csv',
+    '2015_1_H2grid.csv','2016_1_H2grid.csv', '2009_2_H2grid.csv','2010_2_H2grid.csv',
+    '2011_2_H2grid.csv','2012_2_H2grid.csv','2013_2_H2grid.csv',
+    '2014_2_H2grid.csv','2015_2_H2grid.csv','2016_2_H2grid.csv'])]
+    dfneU=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value']
+    .mean().reset_index()
+    #df_00_10g.to_csv('./Grids/H2/Target_Grid/Dezember/Mean_2000.csv')
+    return dfneU 
+
+def Timeseriese(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['1973_12_H2grid.csv',
+    '1974_12_H2grid.csv','1975_12_H2grid.csv','1976_12_H2grid.csv',
+    '1977_12_H2grid.csv','1978_12_H2grid.csv','1979_12_H2grid.csv',
+    '1980_12_H2grid.csv','1973_1_H2grid.csv','1974_1_H2grid.csv',
+    '1975_1_H2grid.csv','1976_1_H2grid.csv','1977_1_H2grid.csv',
+    '1978_1_H2grid.csv','1979_1_H2grid.csv','1980_1_H2grid.csv',
+    '1973_2_H2grid.csv','1974_2_H2grid.csv','1975_2_H2grid.csv',
+    '1976_2_H2grid.csv','1977_2_H2grid.csv','1978_2_H2grid.csv',
+    '1970_2_H2grid.csv','1980_2_H2grid.csv'])]
+    dfalT=df_00_10.groupby(['Latitude', 'Longitude'],
+    as_index=False)['Value'].mean().reset_index()
+    #df_00_10g.to_csv('./Grids/H2/Target_Grid/Dezember/Mean_1960.csv')
+    return dfalTe
+
+def Timeseries_ze(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['2009_12_H2grid.csv','2010_12_H2grid.csv',
+    '2011_12_H2grid.csv','2012_12_H2grid.csv','2013_12_H2grid.csv',
+    '2014_12_H2grid.csv','2015_12_H2grid.csv','2016_12_H2grid.csv',
+    '2009_1_H2grid.csv','2010_1_H2grid.csv','2011_1_H2grid.csv',
+    '2012_1_H2grid.csv','2013_1_H2grid.csv','2014_1_H2grid.csv',
+    '2015_1_H2grid.csv','2016_1_H2grid.csv','2009_2_H2grid.csv',
+    '2010_2_H2grid.csv','2011_2_H2grid.csv','2012_2_H2grid.csv',
+    '2013_2_H2grid.csv','2014_2_H2grid.csv','2015_2_H2grid.csv',
+    '2016_2_H2grid.csv'])]
+    dfneUe=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value']
+    .mean().reset_index()
+    #df_00_10g.to_csv('./Grids/H2/Target_Grid/Dezember/Mean_2000.csv')
+    return dfneUe 
+
+
+def Timeseriesus(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['1973_12_H2grid.csv','1974_12_H2grid.csv',
+    '1975_12_H2grid.csv','1976_12_H2grid.csv','1977_12_H2grid.csv',
+    '1978_12_H2grid.csv','1979_12_H2grid.csv','1980_12_H2grid.csv',
+    '1973_1_H2grid.csv','1974_1_H2grid.csv','1975_1_H2grid.csv',
+    '1976_1_H2grid.csv','1977_1_H2grid.csv','1978_1_H2grid.csv',
+    '1979_1_H2grid.csv','1980_1_H2grid.csv','1973_2_H2grid.csv',
+    '1974_2_H2grid.csv','1975_2_H2grid.csv','1976_2_H2grid.csv',
+    '1977_2_H2grid.csv','1978_2_H2grid.csv','1970_2_H2grid.csv',
+    '1980_2_H2grid.csv'])]
+    dfalUS=df_00_10.groupby(['Latitude', 'Longitude'],
+    as_index=False)['Value']
+    .mean().reset_index()
+    #df_00_10g.to_csv('./Grids/H2/Target_Grid/Dezember/Mean_1960.csv')
+    return dfalUS
+
+def Timeseries_zus(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['2009_12_H2grid.csv','2010_12_H2grid.csv',
+    '2011_12_H2grid.csv','2012_12_H2grid.csv','2013_12_H2grid.csv',
+    '2014_12_H2grid.csv','2015_12_H2grid.csv','2016_12_H2grid.csv',
+    '2009_1_H2grid.csv','2010_1_H2grid.csv','2011_1_H2grid.csv',
+    '2012_1_H2grid.csv','2013_1_H2grid.csv','2014_1_H2grid.csv',
+    '2015_1_H2grid.csv','2016_1_H2grid.csv','2009_2_H2grid.csv',
+    '2010_2_H2grid.csv','2011_2_H2grid.csv','2012_2_H2grid.csv',
+    '2013_2_H2grid.csv','2014_2_H2grid.csv','2015_2_H2grid.csv',
+    '2016_2_H2grid.csv'])]
+    dfnUS=df_00_10.groupby(['Latitude', 'Longitude'],
+    as_index=False)['Value']
+    .mean().reset_index()
+    #df_00_10g.to_csv('./Grids/H2/Target_Grid/Dezember/Mean_2000.csv')
+    return dfnUS 
+
+dfn = load_data()
+dfne = load_datae()
+dfnus =load_dataus()
+
+# # Dataset Worldwide
+dfalT= Timeseries(dfn)
+print(dfalT)
+dfneU= Timeseries_z(dfn)
+print(dfneU)
+
+# Dataset Europe 
+dfalTe= Timeseries(dfne)
+print(dfalTe)
+dfneUe= Timeseries_z(dfne) 
+print(dfneUe)
+
+#Dataset US 
+dfalUS = Timeseriesus(dfnus)
+print(dfalUS)
+dfnUS = Timeseries_zus(dfnus)
+print(dfnUS)
