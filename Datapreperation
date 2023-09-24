@@ -1,0 +1,195 @@
+# -------------------------------------------------------------------------------
+# In this file, the data is prepared and sorted, and the data is prepared for plotting on the map.
+# Display data in CSV sorted by year and month 
+# Then the data is divided into Eurasia (['Latitude'] > -32 ) & (df['Latitude'] < 180)) and America ((df['Latitude'] > -180 ) & (df['Latitude'] < -32)) 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+from posixpath import split
+import pandas as pd
+import numpy as np
+import datetime
+from dateutil.relativedelta import relativedelta
+import glob
+import os
+import shutil
+
+def get_data():
+    # #read CSV but only interesting collums
+    #  read contents of csv file
+    file = pd.read_csv("./Daten/data.csv")
+    # # adding header
+     headerList = ['WMOCode', 'SiteID', 'Country', 'Latitude', 'Longitude', 
+     'Altitude', 'H2', 'H3', 'O18', 'Date', 'Begin of Period', 'End of Period',
+     'Site']
+    # # converting data frame to csv
+    # file.to_csv("./Data/data.csv", header=headerList, index=False)
+    # # display modified csv file
+    dfgnip = pd.read_csv(r"./Data/Data.csv",
+                    usecols=['Latitude', 'Longitude', 'Altitude', 'Date',
+                    H2', 'O18'])
+    return(dfgnip)
+
+def get_datab():
+    dfbr = pd.read_csv(r"./Daten/Daten/Bowen.csv",
+                    usecols=['Latitude', 'Longitude', 'Elevation_mabsl',
+                    'Collection_Date',
+                    'd2H', 'd18O'])
+    dfbr['Collection_Date'] = dfbr['Collection_Date'].str[:-9] 
+    dfbr.rename(columns={'Latitude': 'Latitude', 'Longitude': 'Longitude',
+    'Elevation_mabsl': 'Altitude', 'Collection_Date':
+    'Date', 'd2H': 'H2', 'd18O': 'O18'}, inplace=True)
+    return(dfbr)
+
+def append_dataframe(dfgnip, dfbr):
+    df = dfgnip.append(dfbr, ignore_index=True)
+    return(df)
+
+def modify_data(df):
+    # Modificate the Dataframe e.g. extracting the sample Date 
+    df['Year'] = pd.DatetimeIndex(df['Date']).year
+    df['month'] = pd.DatetimeIndex(df['Date']).month
+    df['dates'] = pd.to_datetime(df['Date']) 
+    # Altitude Correction from H2 
+    df["a_diffH"] = (df["Altitude"] *-0.015) # Calculating which d2H
+    difference were produced with the altitude 
+    sum_column = (df["H2"]- df["a_diffH"])
+    df['H2a'] = sum_column
+    df = df[df['H2a'].notna()]
+    df = df.drop(df[(df.H2 > 9998)].index)
+    df = df.drop(df[(df.H2 < -998)].index)
+    dfn = df 
+    return(dfn)
+
+def modify_dataO(df):
+    # Modificate the Dataframe e.g. extracting the sample Date 
+    df['Year'] = pd.DatetimeIndex(df['Date']).year
+    df['month'] = pd.DatetimeIndex(df['Date']).month
+    df['dates'] = pd.to_datetime(df['Date']) 
+    # Altitude Correction from O18
+    df["a_diffO"] = (df["Altitude"] *-0.002)
+    sum_column = (df["O18"]- df["a_diffO"])
+    df['O18a'] = sum_column
+    df = df[df['O18a'].notna()]
+    df = df[df['Altitude'].notna()]
+    df = df.drop(df[(df.O18 > 9998)].index)
+    df = df.drop(df[(df.O18 < -998)].index)
+    dfnO = df 
+    return(dfnO)
+
+def split_year(dfn):
+    # Save all Data from one Month in the same Year in a new CSV File 
+    min_year = dfn.dates.min().year
+    max_year = dfn.dates.max().year
+
+    if min_year == max_year:
+        yearRange = [min_year]
+    else:
+        yearRange = range(min_year, max_year+1)
+
+    for year in yearRange:
+        for month in range(1, 13):
+
+            H2 = dfn[(dfn.dates >= datetime.datetime(year, month, 1)) &
+            (dfn.dates <= datetime.datetime(year, month, 1) 
+            + relativedelta(months=1) - relativedelta(days=1))]
+            # Als .csv Speichern mit Jahr und Monat im Namen
+            path_H2 = ./Classified/H2/{0}_{1}_H2.csv'.format(year, month)
+            # Nur Daten Speichern, wenn jeder Eintrag eine eigene Reihe im CSV.
+            File besitzt
+            if H2.shape[0] > 0:
+                H2.to_csv(path_H2, index=False)
+
+def split_yearO(dfnO):
+    # Save all Data from one Month in the same Year in a new CSV File 
+    min_year = dfnO.dates.min().year
+    max_year = dfnO.dates.max().year
+
+    if min_year == max_year:
+        yearRange = [min_year]
+    else:
+        yearRange = range(min_year, max_year+1)
+
+    for year in yearRange:
+        for month in range(1, 13):
+
+            O18 = dfnO[(dfnO.dates >= datetime.datetime(year, month, 1)) &
+            (dfnO.dates <= datetime.datetime(year, month, 1) + 
+            relativedelta(months=1) - relativedelta(days=1))]
+
+            # Als .csv Speichern mit Jahr und Monat im Namen
+            path_O18 = './Classified/O18/{0}_{1}_O18.csv'.
+            format(year, month)
+
+            # Nur Daten Speichern, wenn jeder Eintrag eine eigene Reihe im CSV. 
+            File besitzt if O18.shape[0] > 0:
+                O18.to_csv(path_O18, index=False)
+
+def split_location ():
+    # Einlesen aller CSV Files aus
+    dem Ordner und nur das Speichern der Daten von Europa 
+    path = './Classified/H2'
+    csv_files = glob.glob(path + "/*.csv")
+
+    for p in csv_files:
+        df = pd.read_csv(p, sep=",")
+        # df_1 = df[(df['Longitude'] > -30 ) &( df['Latitude'] > -30 ) 
+        & (df['Longitude'] < 60) 
+        & (df['Latitude'] < 70)]
+        # df_1.to_csv(p.replace(".csv", "euras.csv"))
+        df_2 = df[(df['Longitude'] > -128 ) 
+        &( df['Latitude'] > 18 ) 
+        & (df['Longitude'] < -56) 
+        & (df['Latitude'] < 50)]
+        df_2.to_csv(p.replace(".csv", "us.csv"))
+
+    # safe euras and america data in different folder 
+    path = './Classified/H2'
+    csv_files = glob.glob(path + "/*us.csv")
+
+    for p in csv_files:
+        original = p
+        target = r'.\Daten\Classified\H2_us'
+        shutil.move(original, target)
+
+    # path = './Classified/H2'
+    # csv_files = glob.glob(path + "/*america.csv")
+
+    # for p in csv_files:
+    #     original = p
+    #     target = r'./Classified/H2_america'
+    #     shutil.move(original, target)
+
+def split_locationO ():
+    # Einlesen aller CSV Files aus dem Ordner 
+    path = './Classified/O18'
+    csv_files = glob.glob(path + "/*.csv")
+
+    for p in csv_files:
+        df = pd.read_csv(p, sep=",")
+        # df_1=df[(df['Longitude'] > -30 ) &( df['Latitude'] > -30 ) 
+        & (df['Longitude'] < 60) 
+        & (df['Latitude'] < 70)]
+        # df_1.to_csv(p.replace(".csv", "us.csv"))
+        df_2 = df[(df['Longitude'] > -128 ) &( df['Latitude'] > 18 ) 
+        & (df['Longitude'] < -56) 
+        & (df['Latitude'] < 50)]
+        df_2.to_csv(p.replace(".csv", "us.csv"))
+
+    # safe euras and america data in different folder 
+    path = './Daten/Classified/O18'
+    csv_files = glob.glob(path + "/*us.csv")
+
+    for p in csv_files:
+        original = p
+        target = r'.\Daten\Classified\O18_us'
+        shutil.move(original, target)
+
+
+dfgnip = get_data()
+dfbr = get_datab()
+df =append_dataframe(dfgnip, dfbr)
+dfn = modify_data (df) # Preperation for H2 Analysis 
+dfnO = modify_dataO (df) # Preperation for O18 Analysis 
+split_year(dfn)
+split_yearO(dfnO)
+split_location()
+split_locationO()
