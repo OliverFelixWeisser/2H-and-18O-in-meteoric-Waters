@@ -1,6 +1,6 @@
 # 2H-and-18O-in-meteoric-Waters
 
-The individual files must be added in the following order: 
+The individual files must be activated in the following order: 
 1. datapreperation 
 2. extract_interpol_grid
 3. calculate_timeseries 		
