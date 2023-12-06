@@ -9,20 +9,20 @@ from caculate_timeseries import *
 def load_dataa():
     # Data old
     dfalt = dfalT
-    dfalt['H2a']=dfalt['Value']
+    dfalt['O18a']=dfalt['Value']
     return dfalt 
 
 def load_datan():
     # Data new 
     dfneu = dfneU
-    dfneu['H2n']=dfneu['Value']
+    dfneu['O18n']=dfneu['Value']
     return dfneu 
 
 def recomb_data(dfneu, dfalt):
     dfdiff = pd.merge(dfalt, dfneu, 
                   on=['Latitude', 'Longitude'], 
                   how='inner')
-    dfdiff["Diff"] = ((dfdiff['H2a']-dfdiff['H2n'])*-1)
+    dfdiff["Diff"] = ((dfdiff['O18a']-dfdiff['O18n'])*-1)
     dfdiff=dfdiff.reset_index()
     del dfdiff["Value_x"]
     del dfdiff["Value_y"]
@@ -35,20 +35,20 @@ def recomb_data(dfneu, dfalt):
 def load_dataae():
     # Daten Alt
     dfalte = dfalTe
-    dfalte['H2a']=dfalte['Value']
+    dfalte['O18a']=dfalte['Value']
     return dfalte
 
 def load_datane():
     # Daten neu 
     dfneue = dfneUe
-    dfneue['H2n']=dfneue['Value']
+    dfneue['O18n']=dfneue['Value']
     return dfneue 
 
 def recomb_data(dfneue, dfalte):
     dfdiffe = pd.merge(dfalte, dfneue, 
                   on=['Latitude', 'Longitude'], 
                   how='inner')
-    dfdiffe["Diff"] = ((dfdiffe['H2a']-dfdiffe['H2n'])*-1)
+    dfdiffe["Diff"] = ((dfdiffe['O18a']-dfdiffe['O18n'])*-1)
     dfdiffe=dfdiffe.reset_index()
     del dfdiffe["Value_x"]
     del dfdiffe["Value_y"]
@@ -61,20 +61,20 @@ def recomb_data(dfneue, dfalte):
 def load_dataus():
     # Data old
     dfaltus = dfalUS
-    dfaltus['H2a']=dfaltus['Value']
+    dfaltus['O18a']=dfaltus['Value']
     return dfaltus
 
 def load_datanus():
     # Data new
     dfneuus = dfnUS
-    dfneuus['H2n']=dfneuus['Value']
+    dfneuus['O18n']=dfneuus['Value']
     return dfneuus 
 
 def recomb_data(dfaltus, dfneuus):
     dfdiffus = pd.merge(dfaltus, dfneuus, 
                   on=['Latitude', 'Longitude'], 
                   how='inner')
-    dfdiffus["Diff"] = ((dfdiffus['H2a']-dfdiffus['H2n'])*-1)
+    dfdiffus["Diff"] = ((dfdiffus['O18a']-dfdiffus['O18n'])*-1)
     dfdiffus=dfdiffus.reset_index()
     del dfdiffus["Value_x"]
     del dfdiffus["Value_y"]
