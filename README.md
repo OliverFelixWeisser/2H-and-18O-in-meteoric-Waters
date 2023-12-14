@@ -13,6 +13,7 @@ The code in the shortcut file combines the individual files:
     3. calculate_timeseries 		
     4. difference_calculation
     5. extract elevation
+    
 This is easier to implement but requires more computing power than the individual files. 
 
 If maps/histograms are to be created for 2H, O18 must be replaced by H2 using Ctrl F.
