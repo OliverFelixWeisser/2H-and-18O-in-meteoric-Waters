@@ -1,0 +1,1661 @@
+import imp
+import pandas as pd
+import glob
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from netCDF4 import Dataset
+from mpl_toolkits.basemap import Basemap
+from matplotlib.patches import Path, PathPatch
+
+
+def load_datae():
+    path = r'C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Classified/Grids/O18/Target_Grid/Europa/All'
+    all_files = glob.glob(path + "/*.csv")
+
+    data = [] # pd.concat takes a list of dataframes as an agrument
+    for csv in all_files:
+        frame = pd.read_csv(csv)
+        frame['filename'] = os.path.basename(csv)
+        data.append(frame)
+    dfne = pd.concat(data, ignore_index=True) #dont want pandas to try an align row indexes
+    return(dfne)
+def load_dataus():
+    path = r'C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Classified/Grids/O18/Target_Grid/US/All'
+    all_files = glob.glob(path + "/*.csv")
+
+    data = [] # pd.concat takes a list of dataframes as an agrument
+    for csv in all_files:
+        frame = pd.read_csv(csv)
+        frame['filename'] = os.path.basename(csv)
+        data.append(frame)
+    dfnus = pd.concat(data, ignore_index=True) #dont want pandas to try an align row indexes
+    return(dfnus)
+# Europe 1990s Annual, DJF, MAM, JJA, SON Timeseries
+def Timeseriesean(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['1973_12_O18grid.csv','1974_12_O18grid.csv','1975_12_O18grid.csv','1976_12_O18grid.csv','1977_12_O18grid.csv','1978_12_O18grid.csv','1979_12_O18grid.csv','1980_12_O18grid.csv', '1973_1_O18grid.csv','1974_1_O18grid.csv','1975_1_O18grid.csv','1976_1_O18grid.csv','1977_1_O18grid.csv','1978_1_O18grid.csv','1979_1_O18grid.csv','1980_1_O18grid.csv', '1973_2_O18grid.csv','1974_2_O18grid.csv','1975_2_O18grid.csv','1976_2_O18grid.csv','1977_2_O18grid.csv','1978_2_O18grid.csv','1970_2_O18grid.csv','1980_2_O18grid.csv','1973_3_O18grid.csv','1974_3_O18grid.csv','1975_3_O18grid.csv','1976_3_O18grid.csv','1977_3_O18grid.csv','1978_3_O18grid.csv','1979_3_O18grid.csv','1980_3_O18grid.csv','1973_4_O18grid.csv','1974_4_O18grid.csv','1975_4_O18grid.csv','1976_4_O18grid.csv','1977_4_O18grid.csv','1978_4_O18grid.csv','1979_4_O18grid.csv','1980_4_O18grid.csv','1973_5_O18grid.csv','1974_5_O18grid.csv','1975_5_O18grid.csv','1976_5_O18grid.csv','1977_5_O18grid.csv','1978_5_O18grid.csv','1979_5_O18grid.csv','1980_5_O18grid.csv','1973_6_O18grid.csv','1974_6_O18grid.csv','1975_6_O18grid.csv','1976_6_O18grid.csv','1977_6_O18grid.csv','1978_6_O18grid.csv','1979_6_O18grid.csv','1980_6_O18grid.csv','1973_7_O18grid.csv','1974_7_O18grid.csv','1975_7_O18grid.csv','1976_7_O18grid.csv','1977_7_O18grid.csv','1978_7_O18grid.csv','1979_7_O18grid.csv','1980_7_O18grid.csv','1973_8_O18grid.csv','1974_8_O18grid.csv','1975_8_O18grid.csv','1976_8_O18grid.csv','1977_8_O18grid.csv','1978_8_O18grid.csv','1979_8_O18grid.csv','1980_8_O18grid.csv','1973_9_O18grid.csv','1974_9_O18grid.csv','1975_9_O18grid.csv','1976_9_O18grid.csv','1977_9_O18grid.csv','1978_9_O18grid.csv','1979_9_O18grid.csv','1980_9_O18grid.csv','1973_10_O18grid.csv','1974_10_O18grid.csv','1975_10_O18grid.csv','1976_10_O18grid.csv','1977_10_O18grid.csv','1978_10_O18grid.csv','1979_10_O18grid.csv','1980_10_O18grid.csv','1973_11_O18grid.csv','1974_11_O18grid.csv','1975_11_O18grid.csv','1976_11_O18grid.csv','1977_11_O18grid.csv','1978_11_O18grid.csv','1979_11_O18grid.csv','1980_11_O18grid.csv'])]   
+    dfalTean=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalTean
+def TimeserieseDJF(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['1973_12_O18grid.csv','1974_12_O18grid.csv','1975_12_O18grid.csv','1976_12_O18grid.csv','1977_12_O18grid.csv','1978_12_O18grid.csv','1979_12_O18grid.csv','1980_12_O18grid.csv', '1973_1_O18grid.csv','1974_1_O18grid.csv','1975_1_O18grid.csv','1976_1_O18grid.csv','1977_1_O18grid.csv','1978_1_O18grid.csv','1979_1_O18grid.csv','1980_1_O18grid.csv', '1973_2_O18grid.csv','1974_2_O18grid.csv','1975_2_O18grid.csv','1976_2_O18grid.csv','1977_2_O18grid.csv','1978_2_O18grid.csv','1970_2_O18grid.csv','1980_2_O18grid.csv'])]
+    dfalTeDJF=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalTeDJF
+def TimeserieseMAM(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['1973_3_O18grid.csv','1974_3_O18grid.csv','1975_3_O18grid.csv','1976_3_O18grid.csv','1977_3_O18grid.csv','1978_3_O18grid.csv','1979_3_O18grid.csv','1980_3_O18grid.csv','1973_4_O18grid.csv','1974_4_O18grid.csv','1975_4_O18grid.csv','1976_4_O18grid.csv','1977_4_O18grid.csv','1978_4_O18grid.csv','1979_4_O18grid.csv','1980_4_O18grid.csv','1973_5_O18grid.csv','1974_5_O18grid.csv','1975_5_O18grid.csv','1976_5_O18grid.csv','1977_5_O18grid.csv','1978_5_O18grid.csv','1979_5_O18grid.csv','1980_5_O18grid.csv'])]
+    dfalTeMAM=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalTeMAM
+def TimeserieseJJA(dfne):
+    df = dfne
+    df_00_10=df_00_10=df.loc[df['filename'].isin(['1973_6_O18grid.csv','1974_6_O18grid.csv','1975_6_O18grid.csv','1976_6_O18grid.csv','1977_6_O18grid.csv','1978_6_O18grid.csv','1979_6_O18grid.csv','1980_6_O18grid.csv','1973_7_O18grid.csv','1974_7_O18grid.csv','1975_7_O18grid.csv','1976_7_O18grid.csv','1977_7_O18grid.csv','1978_7_O18grid.csv','1979_7_O18grid.csv','1980_7_O18grid.csv','1973_8_O18grid.csv','1974_8_O18grid.csv','1975_8_O18grid.csv','1976_8_O18grid.csv','1977_8_O18grid.csv','1978_8_O18grid.csv','1979_8_O18grid.csv','1980_8_O18grid.csv'])]
+    dfalTeJJA=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalTeJJA
+def TimeserieseSON(dfne):
+    df = dfne
+    df_00_10=df_00_10=df_00_10=df.loc[df['filename'].isin(['1973_9_O18grid.csv','1974_9_O18grid.csv','1975_9_O18grid.csv','1976_9_O18grid.csv','1977_9_O18grid.csv','1978_9_O18grid.csv','1979_9_O18grid.csv','1980_9_O18grid.csv','1973_10_O18grid.csv','1974_10_O18grid.csv','1975_10_O18grid.csv','1976_10_O18grid.csv','1977_10_O18grid.csv','1978_10_O18grid.csv','1979_10_O18grid.csv','1980_10_O18grid.csv','1973_11_O18grid.csv','1974_11_O18grid.csv','1975_11_O18grid.csv','1976_11_O18grid.csv','1977_11_O18grid.csv','1978_11_O18grid.csv','1979_11_O18grid.csv','1980_11_O18grid.csv'])]
+    dfalTeSON=df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalTeSON
+# Europe 2010s Annual, DJF, MAM, JJA, SON Timeseries
+def Timeseriese_zeNeu(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['2009_12_O18grid.csv','2010_12_O18grid.csv','2011_12_O18grid.csv','2012_12_O18grid.csv','2013_12_O18grid.csv','2014_12_O18grid.csv','2015_12_O18grid.csv','2016_12_O18grid.csv', '2009_1_O18grid.csv','2010_1_O18grid.csv','2011_1_O18grid.csv','2012_1_O18grid.csv','2013_1_O18grid.csv','2014_1_O18grid.csv','2015_1_O18grid.csv','2016_1_O18grid.csv', '2009_2_O18grid.csv','2010_2_O18grid.csv','2011_2_O18grid.csv','2012_2_O18grid.csv','2013_2_O18grid.csv','2014_2_O18grid.csv','2015_2_O18grid.csv','2016_2_O18grid.csv', '2009_3_O18grid.csv','2010_3_O18grid.csv','2011_12_O18grid.csv','2012_3_O18grid.csv','2013_3_O18grid.csv','2014_3_O18grid.csv','2015_3_O18grid.csv','2016_3_O18grid.csv', '2009_4_O18grid.csv','2010_4_O18grid.csv','2011_4_O18grid.csv','2012_4_O18grid.csv','2013_4_O18grid.csv','2014_4_O18grid.csv','2015_4_O18grid.csv','2016_4_O18grid.csv', '2009_5_O18grid.csv','2010_5_O18grid.csv','2011_5_O18grid.csv','2012_5_O18grid.csv','2013_5_O18grid.csv','2014_5_O18grid.csv','2015_5_O18grid.csv','2016_5_O18grid.csv', '2009_6_O18grid.csv','2010_6_O18grid.csv','2011_6_O18grid.csv','2012_6_O18grid.csv','2013_6_O18grid.csv','2014_6_O18grid.csv','2015_6_O18grid.csv','2016_6_O18grid.csv', '2009_7_O18grid.csv','2010_7_O18grid.csv','2011_7_O18grid.csv','2012_7_O18grid.csv','2013_7_O18grid.csv','2014_7_O18grid.csv','2015_7_O18grid.csv','2016_7_O18grid.csv','2009_8_O18grid.csv','2010_8_O18grid.csv','2011_8_O18grid.csv','2012_8_O18grid.csv','2013_8_O18grid.csv','2014_8_O18grid.csv','2015_8_O18grid.csv','2016_8_O18grid.csv', '2009_9_O18grid.csv','2010_9_O18grid.csv','2011_9_O18grid.csv','2012_9_O18grid.csv','2013_9_O18grid.csv','2014_9_O18grid.csv','2015_9_O18grid.csv','2016_9_O18grid.csv', '2009_10_O18grid.csv','2010_10_O18grid.csv','2011_10_O18grid.csv','2012_10_O18grid.csv','2013_10_O18grid.csv','2014_10_O18grid.csv','2015_10_O18grid.csv','2016_10_O18grid.csv', '2009_11_O18grid.csv','2010_11_O18grid.csv','2011_11_O18grid.csv','2012_11_O18grid.csv','2013_11_O18grid.csv','2014_11_O18grid.csv','2015_11_O18grid.csv','2016_11_O18grid.csv'])]   
+    dfneUean =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfneUean 
+def Timeseriese_zeDJF(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['2009_12_O18grid.csv','2010_12_O18grid.csv','2011_12_O18grid.csv','2012_12_O18grid.csv','2013_12_O18grid.csv','2014_12_O18grid.csv','2015_12_O18grid.csv','2016_12_O18grid.csv', '2009_1_O18grid.csv','2010_1_O18grid.csv','2011_1_O18grid.csv','2012_1_O18grid.csv','2013_1_O18grid.csv','2014_1_O18grid.csv','2015_1_O18grid.csv','2016_1_O18grid.csv', '2009_2_O18grid.csv','2010_2_O18grid.csv','2011_2_O18grid.csv','2012_2_O18grid.csv','2013_2_O18grid.csv','2014_2_O18grid.csv','2015_2_O18grid.csv','2016_2_O18grid.csv'])]
+    dfneUeDJF =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfneUeDJF 
+def Timeseriese_zeMAM(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['2009_3_O18grid.csv','2010_3_O18grid.csv','2011_12_O18grid.csv','2012_3_O18grid.csv','2013_3_O18grid.csv','2014_3_O18grid.csv','2015_3_O18grid.csv','2016_3_O18grid.csv', '2009_4_O18grid.csv','2010_4_O18grid.csv','2011_4_O18grid.csv','2012_4_O18grid.csv','2013_4_O18grid.csv','2014_4_O18grid.csv','2015_4_O18grid.csv','2016_4_O18grid.csv', '2009_5_O18grid.csv','2010_5_O18grid.csv','2011_5_O18grid.csv','2012_5_O18grid.csv','2013_5_O18grid.csv','2014_5_O18grid.csv','2015_5_O18grid.csv','2016_5_O18grid.csv'])]
+    dfneUeMAM =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfneUeMAM 
+def Timeseriese_zeJJA(dfne):
+    df = dfne
+    df_00_10=df.loc[df['filename'].isin(['2009_6_O18grid.csv','2010_6_O18grid.csv','2011_6_O18grid.csv','2012_6_O18grid.csv','2013_6_O18grid.csv','2014_6_O18grid.csv','2015_6_O18grid.csv','2016_6_O18grid.csv', '2009_7_O18grid.csv','2010_7_O18grid.csv','2011_7_O18grid.csv','2012_7_O18grid.csv','2013_7_O18grid.csv','2014_7_O18grid.csv','2015_7_O18grid.csv','2016_7_O18grid.csv','2009_8_O18grid.csv','2010_8_O18grid.csv','2011_8_O18grid.csv','2012_8_O18grid.csv','2013_8_O18grid.csv','2014_8_O18grid.csv','2015_8_O18grid.csv','2016_8_O18grid.csv'])]
+    dfneUeJJA =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfneUeJJA 
+def Timeseriese_zeSON(dfne):
+    df = dfne
+    df_00_10=df_00_10=df.loc[df['filename'].isin(['2009_9_O18grid.csv','2010_9_O18grid.csv','2011_9_O18grid.csv','2012_9_O18grid.csv','2013_9_O18grid.csv','2014_9_O18grid.csv','2015_9_O18grid.csv','2016_9_O18grid.csv', '2009_10_O18grid.csv','2010_10_O18grid.csv','2011_10_O18grid.csv','2012_10_O18grid.csv','2013_10_O18grid.csv','2014_10_O18grid.csv','2015_10_O18grid.csv','2016_10_O18grid.csv', '2009_11_O18grid.csv','2010_11_O18grid.csv','2011_11_O18grid.csv','2012_11_O18grid.csv','2013_11_O18grid.csv','2014_11_O18grid.csv','2015_11_O18grid.csv','2016_11_O18grid.csv'])]
+    dfneUeSON =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfneUeSON 
+# USA 1990s Annual, DJF, MAM, JJA, SON Timeseries
+def Timeseriesusan(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['1973_12_O18grid.csv','1974_12_O18grid.csv','1975_12_O18grid.csv','1976_12_O18grid.csv','1977_12_O18grid.csv','1978_12_O18grid.csv','1979_12_O18grid.csv','1980_12_O18grid.csv', '1973_1_O18grid.csv','1974_1_O18grid.csv','1975_1_O18grid.csv','1976_1_O18grid.csv','1977_1_O18grid.csv','1978_1_O18grid.csv','1979_1_O18grid.csv','1980_1_O18grid.csv', '1973_2_O18grid.csv','1974_2_O18grid.csv','1975_2_O18grid.csv','1976_2_O18grid.csv','1977_2_O18grid.csv','1978_2_O18grid.csv','1970_2_O18grid.csv','1980_2_O18grid.csv','1973_3_O18grid.csv','1974_3_O18grid.csv','1975_3_O18grid.csv','1976_3_O18grid.csv','1977_3_O18grid.csv','1978_3_O18grid.csv','1979_3_O18grid.csv','1980_3_O18grid.csv','1973_4_O18grid.csv','1974_4_O18grid.csv','1975_4_O18grid.csv','1976_4_O18grid.csv','1977_4_O18grid.csv','1978_4_O18grid.csv','1979_4_O18grid.csv','1980_4_O18grid.csv','1973_5_O18grid.csv','1974_5_O18grid.csv','1975_5_O18grid.csv','1976_5_O18grid.csv','1977_5_O18grid.csv','1978_5_O18grid.csv','1979_5_O18grid.csv','1980_5_O18grid.csv','1973_6_O18grid.csv','1974_6_O18grid.csv','1975_6_O18grid.csv','1976_6_O18grid.csv','1977_6_O18grid.csv','1978_6_O18grid.csv','1979_6_O18grid.csv','1980_6_O18grid.csv','1973_7_O18grid.csv','1974_7_O18grid.csv','1975_7_O18grid.csv','1976_7_O18grid.csv','1977_7_O18grid.csv','1978_7_O18grid.csv','1979_7_O18grid.csv','1980_7_O18grid.csv','1973_8_O18grid.csv','1974_8_O18grid.csv','1975_8_O18grid.csv','1976_8_O18grid.csv','1977_8_O18grid.csv','1978_8_O18grid.csv','1979_8_O18grid.csv','1980_8_O18grid.csv','1973_9_O18grid.csv','1974_9_O18grid.csv','1975_9_O18grid.csv','1976_9_O18grid.csv','1977_9_O18grid.csv','1978_9_O18grid.csv','1979_9_O18grid.csv','1980_9_O18grid.csv','1973_10_O18grid.csv','1974_10_O18grid.csv','1975_10_O18grid.csv','1976_10_O18grid.csv','1977_10_O18grid.csv','1978_10_O18grid.csv','1979_10_O18grid.csv','1980_10_O18grid.csv','1973_11_O18grid.csv','1974_11_O18grid.csv','1975_11_O18grid.csv','1976_11_O18grid.csv','1977_11_O18grid.csv','1978_11_O18grid.csv','1979_11_O18grid.csv','1980_11_O18grid.csv'])]    
+    dfalUSan =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalUSan
+def TimeseriesusDJF(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['1973_12_O18grid.csv','1974_12_O18grid.csv','1975_12_O18grid.csv','1976_12_O18grid.csv','1977_12_O18grid.csv','1978_12_O18grid.csv','1979_12_O18grid.csv','1980_12_O18grid.csv', '1973_1_O18grid.csv','1974_1_O18grid.csv','1975_1_O18grid.csv','1976_1_O18grid.csv','1977_1_O18grid.csv','1978_1_O18grid.csv','1979_1_O18grid.csv','1980_1_O18grid.csv', '1973_2_O18grid.csv','1974_2_O18grid.csv','1975_2_O18grid.csv','1976_2_O18grid.csv','1977_2_O18grid.csv','1978_2_O18grid.csv','1970_2_O18grid.csv','1980_2_O18grid.csv'])]
+    dfalUSDJF =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalUSDJF
+def TimeseriesusMAM(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['1973_3_O18grid.csv','1974_3_O18grid.csv','1975_3_O18grid.csv','1976_3_O18grid.csv','1977_3_O18grid.csv','1978_3_O18grid.csv','1979_3_O18grid.csv','1980_3_O18grid.csv','1973_4_O18grid.csv','1974_4_O18grid.csv','1975_4_O18grid.csv','1976_4_O18grid.csv','1977_4_O18grid.csv','1978_4_O18grid.csv','1979_4_O18grid.csv','1980_4_O18grid.csv','1973_5_O18grid.csv','1974_5_O18grid.csv','1975_5_O18grid.csv','1976_5_O18grid.csv','1977_5_O18grid.csv','1978_5_O18grid.csv','1979_5_O18grid.csv','1980_5_O18grid.csv'])]
+    dfalUSMAM =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalUSMAM
+def TimeseriesusJJA(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['1973_6_O18grid.csv','1974_6_O18grid.csv','1975_6_O18grid.csv','1976_6_O18grid.csv','1977_6_O18grid.csv','1978_6_O18grid.csv','1979_6_O18grid.csv','1980_6_O18grid.csv','1973_7_O18grid.csv','1974_7_O18grid.csv','1975_7_O18grid.csv','1976_7_O18grid.csv','1977_7_O18grid.csv','1978_7_O18grid.csv','1979_7_O18grid.csv','1980_7_O18grid.csv','1973_8_O18grid.csv','1974_8_O18grid.csv','1975_8_O18grid.csv','1976_8_O18grid.csv','1977_8_O18grid.csv','1978_8_O18grid.csv','1979_8_O18grid.csv','1980_8_O18grid.csv'])]
+    dfalUSJJA =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalUSJJA
+def TimeseriesusSON(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['1973_9_O18grid.csv','1974_9_O18grid.csv','1975_9_O18grid.csv','1976_9_O18grid.csv','1977_9_O18grid.csv','1978_9_O18grid.csv','1979_9_O18grid.csv','1980_9_O18grid.csv','1973_10_O18grid.csv','1974_10_O18grid.csv','1975_10_O18grid.csv','1976_10_O18grid.csv','1977_10_O18grid.csv','1978_10_O18grid.csv','1979_10_O18grid.csv','1980_10_O18grid.csv','1973_11_O18grid.csv','1974_11_O18grid.csv','1975_11_O18grid.csv','1976_11_O18grid.csv','1977_11_O18grid.csv','1978_11_O18grid.csv','1979_11_O18grid.csv','1980_11_O18grid.csv'])]
+    dfalUSSON =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfalUSSON
+# USA 2010s Annual, DJF, MAM, JJA, SON Timeseries
+def Timeseries_zusan(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['2009_12_O18grid.csv','2010_12_O18grid.csv','2011_12_O18grid.csv','2012_12_O18grid.csv','2013_12_O18grid.csv','2014_12_O18grid.csv','2015_12_O18grid.csv','2016_12_O18grid.csv', '2009_1_O18grid.csv','2010_1_O18grid.csv','2011_1_O18grid.csv','2012_1_O18grid.csv','2013_1_O18grid.csv','2014_1_O18grid.csv','2015_1_O18grid.csv','2016_1_O18grid.csv', '2009_2_O18grid.csv','2010_2_O18grid.csv','2011_2_O18grid.csv','2012_2_O18grid.csv','2013_2_O18grid.csv','2014_2_O18grid.csv','2015_2_O18grid.csv','2016_2_O18grid.csv', '2009_3_O18grid.csv','2010_3_O18grid.csv','2011_12_O18grid.csv','2012_3_O18grid.csv','2013_3_O18grid.csv','2014_3_O18grid.csv','2015_3_O18grid.csv','2016_3_O18grid.csv', '2009_4_O18grid.csv','2010_4_O18grid.csv','2011_4_O18grid.csv','2012_4_O18grid.csv','2013_4_O18grid.csv','2014_4_O18grid.csv','2015_4_O18grid.csv','2016_4_O18grid.csv', '2009_5_O18grid.csv','2010_5_O18grid.csv','2011_5_O18grid.csv','2012_5_O18grid.csv','2013_5_O18grid.csv','2014_5_O18grid.csv','2015_5_O18grid.csv','2016_5_O18grid.csv', '2009_6_O18grid.csv','2010_6_O18grid.csv','2011_6_O18grid.csv','2012_6_O18grid.csv','2013_6_O18grid.csv','2014_6_O18grid.csv','2015_6_O18grid.csv','2016_6_O18grid.csv', '2009_7_O18grid.csv','2010_7_O18grid.csv','2011_7_O18grid.csv','2012_7_O18grid.csv','2013_7_O18grid.csv','2014_7_O18grid.csv','2015_7_O18grid.csv','2016_7_O18grid.csv','2009_8_O18grid.csv','2010_8_O18grid.csv','2011_8_O18grid.csv','2012_8_O18grid.csv','2013_8_O18grid.csv','2014_8_O18grid.csv','2015_8_O18grid.csv','2016_8_O18grid.csv', '2009_9_O18grid.csv','2010_9_O18grid.csv','2011_9_O18grid.csv','2012_9_O18grid.csv','2013_9_O18grid.csv','2014_9_O18grid.csv','2015_9_O18grid.csv','2016_9_O18grid.csv', '2009_10_O18grid.csv','2010_10_O18grid.csv','2011_10_O18grid.csv','2012_10_O18grid.csv','2013_10_O18grid.csv','2014_10_O18grid.csv','2015_10_O18grid.csv','2016_10_O18grid.csv', '2009_11_O18grid.csv','2010_11_O18grid.csv','2011_11_O18grid.csv','2012_11_O18grid.csv','2013_11_O18grid.csv','2014_11_O18grid.csv','2015_11_O18grid.csv','2016_11_O18grid.csv'])]   
+    dfnUSan =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfnUSan
+def Timeseries_zusDJF(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['2009_12_O18grid.csv','2010_12_O18grid.csv','2011_12_O18grid.csv','2012_12_O18grid.csv','2013_12_O18grid.csv','2014_12_O18grid.csv','2015_12_O18grid.csv','2016_12_O18grid.csv', '2009_1_O18grid.csv','2010_1_O18grid.csv','2011_1_O18grid.csv','2012_1_O18grid.csv','2013_1_O18grid.csv','2014_1_O18grid.csv','2015_1_O18grid.csv','2016_1_O18grid.csv', '2009_2_O18grid.csv','2010_2_O18grid.csv','2011_2_O18grid.csv','2012_2_O18grid.csv','2013_2_O18grid.csv','2014_2_O18grid.csv','2015_2_O18grid.csv','2016_2_O18grid.csv'])]
+    dfnUSDJF =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfnUSDJF
+def Timeseries_zusMAM(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['2009_3_O18grid.csv','2010_3_O18grid.csv','2011_12_O18grid.csv','2012_3_O18grid.csv','2013_3_O18grid.csv','2014_3_O18grid.csv','2015_3_O18grid.csv','2016_3_O18grid.csv', '2009_4_O18grid.csv','2010_4_O18grid.csv','2011_4_O18grid.csv','2012_4_O18grid.csv','2013_4_O18grid.csv','2014_4_O18grid.csv','2015_4_O18grid.csv','2016_4_O18grid.csv', '2009_5_O18grid.csv','2010_5_O18grid.csv','2011_5_O18grid.csv','2012_5_O18grid.csv','2013_5_O18grid.csv','2014_5_O18grid.csv','2015_5_O18grid.csv','2016_5_O18grid.csv'])]
+    dfnUSMAM =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfnUSMAM
+def Timeseries_zusJJA(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['2009_6_O18grid.csv','2010_6_O18grid.csv','2011_6_O18grid.csv','2012_6_O18grid.csv','2013_6_O18grid.csv','2014_6_O18grid.csv','2015_6_O18grid.csv','2016_6_O18grid.csv', '2009_7_O18grid.csv','2010_7_O18grid.csv','2011_7_O18grid.csv','2012_7_O18grid.csv','2013_7_O18grid.csv','2014_7_O18grid.csv','2015_7_O18grid.csv','2016_7_O18grid.csv','2009_8_O18grid.csv','2010_8_O18grid.csv','2011_8_O18grid.csv','2012_8_O18grid.csv','2013_8_O18grid.csv','2014_8_O18grid.csv','2015_8_O18grid.csv','2016_8_O18grid.csv'])]
+    dfnUSJJA =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfnUSJJA
+def Timeseries_zusSON(dfnus):
+    df = dfnus
+    df_00_10=df.loc[df['filename'].isin(['2009_9_O18grid.csv','2010_9_O18grid.csv','2011_9_O18grid.csv','2012_9_O18grid.csv','2013_9_O18grid.csv','2014_9_O18grid.csv','2015_9_O18grid.csv','2016_9_O18grid.csv', '2009_10_O18grid.csv','2010_10_O18grid.csv','2011_10_O18grid.csv','2012_10_O18grid.csv','2013_10_O18grid.csv','2014_10_O18grid.csv','2015_10_O18grid.csv','2016_10_O18grid.csv', '2009_11_O18grid.csv','2010_11_O18grid.csv','2011_11_O18grid.csv','2012_11_O18grid.csv','2013_11_O18grid.csv','2014_11_O18grid.csv','2015_11_O18grid.csv','2016_11_O18grid.csv'])]
+    dfnUSSON =df_00_10.groupby(['Latitude', 'Longitude'], as_index=False)['Value'].mean().reset_index()
+    return dfnUSSON
+#Difference Calulation Europe Annual 
+def load_dataaean(dfalTean):
+    # Daten Alt
+    dfaltean = dfalTean
+    dfaltean['O18a']=dfaltean['Value']
+    return dfaltean
+def load_datanean(dfneUean):
+    # Daten neu 
+    dfneuean = dfneUean
+    dfneuean['O18n']=dfneuean['Value']
+    return dfneuean 
+def recomb_data(dfneuean, dfaltean):
+    dfdiffe = pd.merge(dfaltean, dfneuean, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffe["Diff"] = ((dfdiffe['O18a']-dfdiffe['O18n'])*-1)
+    dfdiffean=dfdiffe.reset_index()
+    del dfdiffean["Value_x"]
+    del dfdiffean["Value_y"]
+    del dfdiffean["index_x"]
+    del dfdiffean["index_y"]
+    del dfdiffean["index"]
+    return dfdiffean
+#Difference Calulation Europe DJF, MAM, JJA, SON 
+def load_dataaeDJF(dfalTeDJF):
+    # Daten Alt
+    dfalteDJF = dfalTeDJF
+    dfalteDJF['O18a']=dfalteDJF['Value']
+    return dfalteDJF
+def load_dataneDJF(dfneUeDJF):
+    # Daten neu 
+    dfneueDJF = dfneUeDJF
+    dfneueDJF['O18n']=dfneueDJF['Value']
+    return dfneueDJF 
+def recomb_data(dfneueDJF, dfalteDJF):
+    dfdiffe = pd.merge(dfalteDJF, dfneueDJF, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffe["Diff"] = ((dfdiffe['O18a']-dfdiffe['O18n'])*-1)
+    dfdiffeDJF=dfdiffe.reset_index()
+    del dfdiffeDJF["Value_x"]
+    del dfdiffeDJF["Value_y"]
+    del dfdiffeDJF["index_x"]
+    del dfdiffeDJF["index_y"]
+    del dfdiffeDJF["index"]
+    return dfdiffeDJF
+def load_dataaeMAM(dfalTeMAM):
+    # Daten Alt
+    dfalteMAM = dfalTeMAM
+    dfalteMAM['O18a']=dfalteMAM['Value']
+    return dfalteMAM
+def load_dataneMAM(dfneUeMAM):
+    # Daten neu 
+    dfneueMAM = dfneUeMAM
+    dfneueMAM['O18n']=dfneueMAM['Value']
+    return dfneueMAM 
+def recomb_data(dfneueMAM, dfalteMAM):
+    dfdiffe = pd.merge(dfalteMAM, dfneueMAM, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffe["Diff"] = ((dfdiffe['O18a']-dfdiffe['O18n'])*-1)
+    dfdiffeMAM=dfdiffe.reset_index()
+    del dfdiffeMAM["Value_x"]
+    del dfdiffeMAM["Value_y"]
+    del dfdiffeMAM["index_x"]
+    del dfdiffeMAM["index_y"]
+    del dfdiffeMAM["index"]
+    return dfdiffeMAM
+def load_dataaeJJA(dfalTeJJA):
+    # Daten Alt
+    dfalteJJA = dfalTeJJA
+    dfalteJJA['O18a']=dfalteJJA['Value']
+    return dfalteJJA
+def load_dataneJJA(dfneUeJJA):
+    # Daten neu 
+    dfneueJJA = dfneUeJJA
+    dfneueJJA['O18n']=dfneueJJA['Value']
+    return dfneueJJA 
+def recomb_data(dfneueJJA, dfalteJJA):
+    dfdiffe = pd.merge(dfalteJJA, dfneueJJA, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffe["Diff"] = ((dfdiffe['O18a']-dfdiffe['O18n'])*-1)
+    dfdiffeJJA=dfdiffe.reset_index()
+    del dfdiffeJJA["Value_x"]
+    del dfdiffeJJA["Value_y"]
+    del dfdiffeJJA["index_x"]
+    del dfdiffeJJA["index_y"]
+    del dfdiffeJJA["index"]
+    return dfdiffeJJA
+def load_dataaeSON(dfalTeSON):
+    # Daten Alt
+    dfalteSON = dfalTeSON
+    dfalteSON['O18a']=dfalteSON['Value']
+    return dfalteSON
+def load_dataneSON(dfneUeSON):
+    # Daten neu 
+    dfneueSON = dfneUeSON
+    dfneueSON['O18n']=dfneueSON['Value']
+    return dfneueSON 
+def recomb_data(dfneueSON, dfalteSON):
+    dfdiffe = pd.merge(dfalteSON, dfneueSON, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffe["Diff"] = ((dfdiffe['O18a']-dfdiffe['O18n'])*-1)
+    dfdiffeSON=dfdiffe.reset_index()
+    del dfdiffeSON["Value_x"]
+    del dfdiffeSON["Value_y"]
+    del dfdiffeSON["index_x"]
+    del dfdiffeSON["index_y"]
+    del dfdiffeSON["index"]
+    return dfdiffeSON
+#Difference Calulation USA Annual 
+def load_datausan(dfalUSan):
+    # Daten Alt
+    dfaltusan = dfalUSan
+    dfaltusan['O18a']=dfaltusan['Value']
+    return dfaltusan
+def load_datanusan(dfnUSan):
+    # Daten neu 
+    dfneuusan = dfnUSan
+    dfneuusan['O18n']=dfneuusan['Value']
+    return dfneuusan
+def recomb_data(dfaltusan, dfneuusan):
+    dfdiffus = pd.merge(dfaltusan, dfneuusan, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffus["Diff"] = ((dfdiffus['O18a']-dfdiffus['O18n'])*-1)
+    dfdiffusan=dfdiffus.reset_index()
+    del dfdiffusan["Value_x"]
+    del dfdiffusan["Value_y"]
+    del dfdiffusan["index_x"]
+    del dfdiffusan["index_y"]
+    del dfdiffusan["index"]
+    return dfdiffusan
+#Difference Calulation USA DJF, MAM, JJA, SON 
+def load_datausDJF(dfalUSDJF):
+    # Daten Alt
+    dfaltusDJF = dfalUSDJF
+    dfaltusDJF['O18a']=dfaltusDJF['Value']
+    return dfaltusDJF
+def load_datanusDJF(dfnUSDJF):
+    # Daten neu 
+    dfneuusDJF = dfnUSDJF
+    dfneuusDJF['O18n']=dfneuusDJF['Value']
+    return dfneuusDJF
+def recomb_data(dfaltusDJF, dfneuusDJF):
+    dfdiffus = pd.merge(dfaltusDJF, dfneuusDJF, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffus["Diff"] = ((dfdiffus['O18a']-dfdiffus['O18n'])*-1)
+    dfdiffusDJF=dfdiffus.reset_index()
+    del dfdiffusDJF["Value_x"]
+    del dfdiffusDJF["Value_y"]
+    del dfdiffusDJF["index_x"]
+    del dfdiffusDJF["index_y"]
+    del dfdiffusDJF["index"]
+    return dfdiffusDJF
+def load_datausMAM(dfalUSMAM):
+    # Daten Alt
+    dfaltusMAM = dfalUSMAM
+    dfaltusMAM['O18a']=dfaltusMAM['Value']
+    return dfaltusMAM
+def load_datanusMAM(dfnUSMAM):
+    # Daten neu 
+    dfneuusMAM = dfnUSMAM
+    dfneuusMAM['O18n']=dfneuusMAM['Value']
+    return dfneuusMAM
+def recomb_data(dfaltusMAM, dfneuusMAM):
+    dfdiffus = pd.merge(dfaltusMAM, dfneuusMAM, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffus["Diff"] = ((dfdiffus['O18a']-dfdiffus['O18n'])*-1)
+    dfdiffusMAM=dfdiffus.reset_index()
+    del dfdiffusMAM["Value_x"]
+    del dfdiffusMAM["Value_y"]
+    del dfdiffusMAM["index_x"]
+    del dfdiffusMAM["index_y"]
+    del dfdiffusMAM["index"]
+    return dfdiffusMAM
+def load_datausJJA(dfalUSJJA):
+    # Daten Alt
+    dfaltusJJA = dfalUSJJA
+    dfaltusJJA['O18a']=dfaltusJJA['Value']
+    return dfaltusJJA
+def load_datanusJJA(dfnUSJJA):
+    # Daten neu 
+    dfneuusJJA = dfnUSJJA
+    dfneuusJJA['O18n']=dfneuusJJA['Value']
+    return dfneuusJJA
+def recomb_data(dfaltusJJA, dfneuusJJA):
+    dfdiffus = pd.merge(dfaltusJJA, dfneuusJJA, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffus["Diff"] = ((dfdiffus['O18a']-dfdiffus['O18n'])*-1)
+    dfdiffusJJA=dfdiffus.reset_index()
+    del dfdiffusJJA["Value_x"]
+    del dfdiffusJJA["Value_y"]
+    del dfdiffusJJA["index_x"]
+    del dfdiffusJJA["index_y"]
+    del dfdiffusJJA["index"]
+    return dfdiffusJJA
+def load_datausSON(dfalUSSON):
+    # Daten Alt
+    dfaltusSON = dfalUSSON
+    dfaltusSON['O18a']=dfaltusSON['Value']
+    return dfaltusSON
+def load_datanusSON(dfnUSSON):
+    # Daten neu 
+    dfneuusSON = dfnUSSON
+    dfneuusSON['O18n']=dfneuusSON['Value']
+    return dfneuusSON
+def recomb_data(dfaltusSON, dfneuusSON):
+    dfdiffus = pd.merge(dfaltusSON, dfneuusSON, 
+                  on=['Latitude', 'Longitude'], 
+                  how='inner')
+    dfdiffus["Diff"] = ((dfdiffus['O18a']-dfdiffus['O18n'])*-1)
+    dfdiffusSON=dfdiffus.reset_index()
+    del dfdiffusSON["Value_x"]
+    del dfdiffusSON["Value_y"]
+    del dfdiffusSON["index_x"]
+    del dfdiffusSON["index_y"]
+    del dfdiffusSON["index"]
+    return dfdiffusSON
+
+# Load Data 
+dfne = load_datae()
+dfnus =load_dataus()
+# Dataset Europe 
+dfalTean = Timeseriesean(dfne) # Europe annual 1900s 
+dfalTeDJF = TimeserieseDJF(dfne) # Europe DJF 1900s
+dfalTeMAM = TimeserieseMAM(dfne) # Europe MAM 1900s
+dfalTeJJA = TimeserieseJJA(dfne) # Europe JJA 1900s 
+dfalTeSON = TimeserieseSON(dfne) # Europe SON 1900s
+print(dfalTeSON) # Test Print if Timeseries Europe 1900s worked 
+dfneUean = Timeseriese_zeNeu(dfne) # Europe annual 2010s
+dfneUeDJF = Timeseriese_zeDJF(dfne) # Europe DJF 2010s 
+dfneUeMAM = Timeseriese_zeMAM(dfne) # Europe MAM 2010s
+dfneUeJJA = Timeseriese_zeJJA(dfne) # Europe JJA 2010s 
+dfneUeSON = Timeseriese_zeSON(dfne) # Europe SON 2010s 
+print(dfneUeSON) # Test Print if Timeseries Europe 2010s worked 
+#Dataset USA 
+dfalUSan = Timeseriesusan(dfnus) # USA annual 1900s 
+dfalUSDJF = TimeseriesusDJF(dfnus) # USA DJF 1900s 
+dfalUSMAM = TimeseriesusMAM(dfnus) # USA MAM 1900s 
+dfalUSJJA = TimeseriesusJJA(dfnus) # USA JJA 1900s 
+dfalUSSON = TimeseriesusSON(dfnus) # USA SON 1990s 
+print(dfalUSSON) # Test Print if Timeseries USA 1900s worked 
+dfnUSan = Timeseries_zusan(dfnus) # USA annual 2010s 
+dfnUSDJF = Timeseries_zusDJF(dfnus) # USA DJF 2010s
+dfnUSMAM = Timeseries_zusMAM(dfnus) # USA MAM 2010s
+dfnUSJJA = Timeseries_zusJJA(dfnus) # USA JJA 2010s 
+dfnUSSON = Timeseries_zusSON(dfnus) # USA SON 2010s
+print(dfnUSSON) # Test Print if Timeseries USA 2010s worked 
+#Change Europe and elevation Annual 
+dfaltean = load_dataaean(dfalTean)
+dfneuean = load_datanean(dfneUean)
+dfdiffean = recomb_data(dfneuean, dfaltean)
+csv_data = dfdiffean
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dflean= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflean)
+dflean["a_diffO"] = (dflean["Altitude"] *-0.002) 
+sum_column = (dflean["Value"]+ dflean["a_diffO"])
+dflean['O18ad'] = sum_column
+df = dflean.drop('a_diffO',inplace=True, axis=1)
+print(dflean)
+#Elevation Eu Annual new
+csv_data = dfdiffean
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleneuan= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleneuan)
+dfleneuan["a_diffO"] = (dfleneuan["Altitude"] *-0.002) 
+sum_column = (dfleneuan["Value"]+ dfleneuan["a_diffO"])
+dfleneuan['O18nd'] = sum_column
+df = dfleneuan.drop('a_diffO',inplace=True, axis=1)
+print(dfleneuan)
+# Elevation EU Annual Difference
+csv_data = dfdiffean
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dflediffan= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflediffan)
+dflediffan["a_diffO"] = (dflediffan["Altitude"] *-0.002) 
+sum_column = (dflediffan["Value"]+ dflediffan["a_diffO"])
+dflediffan['O18d'] = sum_column
+df = dflediffan.drop('a_diffO',inplace=True, axis=1)
+print(dflediffan)
+
+
+# Change and elevation Europe DJF
+dfalteDJF = load_dataaeDJF(dfalTeDJF)
+dfneueDJF = load_dataneDJF(dfneUeDJF)
+dfdiffeDJF = recomb_data(dfneueDJF, dfalteDJF)
+csv_data = dfdiffeDJF
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleDJF= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleDJF)
+dfleDJF["a_diffO"] = (dfleDJF["Altitude"] *-0.002) 
+sum_column = (dfleDJF["Value"]+ dfleDJF["a_diffO"])
+dfleDJF['O18ad'] = sum_column
+df = dfleDJF.drop('a_diffO',inplace=True, axis=1)
+print(dfleDJF)
+
+csv_data = dfdiffeDJF
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleneuDJF= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleneuDJF)
+dfleneuDJF["a_diffO"] = (dfleneuDJF["Altitude"] *-0.002) 
+sum_column = (dfleneuDJF["Value"]+ dfleneuDJF["a_diffO"])
+dfleneuDJF['O18nd'] = sum_column
+df = dfleneuDJF.drop('a_diffO',inplace=True, axis=1)
+print(dfleneuDJF)
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dflediffDJF= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflediffDJF)
+dflediffDJF["a_diffO"] = (dflediffDJF["Altitude"] *-0.002) 
+sum_column = (dflediffDJF["Value"]+ dflediffDJF["a_diffO"])
+dflediffDJF['O18d'] = sum_column
+df = dflediffDJF.drop('a_diffO',inplace=True, axis=1)
+print(dflediffDJF)
+
+
+# Change and elevation Europe MAM
+dfalteMAM = load_dataaeMAM(dfalTeMAM)
+dfneueMAM = load_dataneMAM(dfneUeMAM)
+dfdiffeMAM = recomb_data(dfneueMAM, dfalteMAM)
+csv_data = dfdiffeMAM
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleMAM= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleMAM)
+dfleMAM["a_diffO"] = (dfleMAM["Altitude"] *-0.002) 
+sum_column = (dfleMAM["Value"]+ dfleMAM["a_diffO"])
+dfleMAM['O18ad'] = sum_column
+df = dfleMAM.drop('a_diffO',inplace=True, axis=1)
+print(dfleMAM)
+
+csv_data = dfdiffeMAM
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleneuMAM= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleneuMAM)
+dfleneuMAM["a_diffO"] = (dfleneuMAM["Altitude"] *-0.002) 
+sum_column = (dfleneuMAM["Value"]+ dfleneuMAM["a_diffO"])
+dfleneuMAM['O18nd'] = sum_column
+df = dfleneuMAM.drop('a_diffO',inplace=True, axis=1)
+print(dfleneuMAM)
+
+csv_data = dfdiffeMAM
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dflediffMAM= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflediffMAM)
+dflediffMAM["a_diffO"] = (dflediffMAM["Altitude"] *-0.002) 
+sum_column = (dflediffMAM["Value"]+ dflediffMAM["a_diffO"])
+dflediffMAM['O18d'] = sum_column
+df = dflediffMAM.drop('a_diffO',inplace=True, axis=1)
+print(dflediffMAM)
+
+
+
+#Change and elevation Europe JJA
+dfalteJJA = load_dataaeJJA(dfalTeJJA)
+dfneueJJA = load_dataneJJA(dfneUeJJA)
+dfdiffeJJA = recomb_data(dfneueJJA, dfalteJJA)
+csv_data = dfdiffeJJA
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleJJA= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleJJA)
+dfleJJA["a_diffO"] = (dfleJJA["Altitude"] *-0.002) 
+sum_column = (dfleJJA["Value"]+ dfleJJA["a_diffO"])
+dfleJJA['O18ad'] = sum_column
+df = dfleJJA.drop('a_diffO',inplace=True, axis=1)
+print(dfleJJA)
+csv_data = dfdiffeJJA
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleneuJJA= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleneuJJA)
+dfleneuJJA["a_diffO"] = (dfleneuJJA["Altitude"] *-0.002) 
+sum_column = (dfleneuJJA["Value"]+ dfleneuJJA["a_diffO"])
+dfleneuJJA['O18nd'] = sum_column
+df = dfleneuJJA.drop('a_diffO',inplace=True, axis=1)
+print(dfleneuJJA)
+csv_data = dfdiffeJJA
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dflediffJJA= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflediffJJA)
+dflediffJJA["a_diffO"] = (dflediffJJA["Altitude"] *-0.002) 
+sum_column = (dflediffJJA["Value"]+ dflediffJJA["a_diffO"])
+dflediffJJA['O18d'] = sum_column
+df = print(dflediffJJA).drop('a_diffO',inplace=True, axis=1)
+print(dflediffJJA)
+
+
+
+#Change and elevation Europe SON
+dfalteSON = load_dataaeSON(dfalTeSON)
+dfneueSON = load_dataneSON(dfneUeSON)
+dfdiffeSON = recomb_data(dfneueSON, dfalteSON)
+csv_data = dfdiffeSON
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleSON= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleSON)
+dfleSON["a_diffO"] = (dfleSON["Altitude"] *-0.002) 
+sum_column = (dfleSON["Value"]+ dfleSON["a_diffO"])
+dfleSON['O18ad'] = sum_column
+df = dfleSON.drop('a_diffO',inplace=True, axis=1)
+print(dfleSON)
+
+csv_data = dfdiffeSON
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dfleneuSON= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dfleneuSON)
+dfleneuSON["a_diffO"] = (dfleneuSON["Altitude"] *-0.002) 
+sum_column = (dfleneuSON["Value"]+ dfleneuSON["a_diffO"])
+dfleneuSON['O18nd'] = sum_column
+df = dfleneuSON.drop('a_diffO',inplace=True, axis=1)
+print(dfleneuSON)
+
+csv_data = dfdiffeSON
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+dflediffSON= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflediffSON)
+dflediffSON["a_diffO"] = (dflediffSON["Altitude"] *-0.002) 
+sum_column = (dflediffSON["Value"]+ dflediffSON["a_diffO"])
+dflediffSON['O18d'] = sum_column
+df = dflediffSON.drop('a_diffO',inplace=True, axis=1)
+print(dflediffSON)
+
+
+# Change and elevation USA Annual
+dfaltusan = load_datausan(dfalUSan)
+dfneuusan = load_datanusan(dfnUSan)
+dfdiffusan = recomb_data(dfneuusan, dfaltusan)
+csv_data = dfdiffusan
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusan= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusan)
+
+dflusan["a_diffO"] = (dflusan["Altitude"] *-0.002) 
+sum_column = (dflusan["Value"]+ dflusan["a_diffO"])
+dflusan['O18ad'] = sum_column
+df = dflusan.drop('a_diffO',inplace=True, axis=1)
+print(dflusan)
+
+csv_data = dfdiffusan
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusneuan= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusneuan)
+
+dflusneuan["a_diffO"] = (dflusneuan["Altitude"] *-0.002) 
+sum_column = (dflusneuan["Value"]+ dflusneuan["a_diffO"])
+dflusneuan['O18nd'] = sum_column
+df = dflusneuan.drop('a_diffO',inplace=True, axis=1)
+print(dflusneuan)
+
+csv_data = dfdiffusan
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusdiffan= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusdiffan)
+
+dflusdiffan["a_diffO"] = (dflusdiffan["Altitude"] *-0.002) 
+sum_column = (dflusdiffan["Value"]+ dflusdiffan["a_diffO"])
+dflusdiffan['O18d'] = sum_column
+df = dflusdiffan.drop('a_diffO',inplace=True, axis=1)
+print(dflusdiffan)
+
+
+
+# Change and elevation USA DJF
+dfaltusDJF = load_datausDJF(dfalUSDJF)
+dfneuusDJF = load_datanusDJF(dfnUSDJF)
+dfdiffusDJF = recomb_data(dfneuusDJF, dfaltusDJF)
+csv_data = dfdiffusDJF
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusDJF= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusDJF)
+
+dflusDJF["a_diffO"] = (dflusDJF["Altitude"] *-0.002) 
+sum_column = (dflusDJF["Value"]+ dflusDJF["a_diffO"])
+dflusDJF['O18ad'] = sum_column
+df = dflusDJF.drop('a_diffO',inplace=True, axis=1)
+print(dflusDJF)
+
+
+csv_data = dfdiffusDJF
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusneuDJF= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusneuDJF)
+
+dflusneuDJF["a_diffO"] = (dflusneuDJF["Altitude"] *-0.002) 
+sum_column = (dflusneuDJF["Value"]+ dflusneuDJF["a_diffO"])
+dflusneuDJF['O18nd'] = sum_column
+df = dflusneuDJF.drop('a_diffO',inplace=True, axis=1)
+print(dflusneuDJF)
+
+csv_data = dfdiffusDJF
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusdiffDJF= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusdiffDJF)
+
+dflusdiffDJF["a_diffO"] = (dflusdiffDJF["Altitude"] *-0.002) 
+sum_column = (dflusdiffDJF["Value"]+ dflusdiffDJF["a_diffO"])
+dflusdiffDJF['O18d'] = sum_column
+df = dflusdiffDJF.drop('a_diffO',inplace=True, axis=1)
+print(dflusdiffDJF)
+
+
+
+
+#Change and elevation USA MAM
+dfaltusMAM = load_datausMAM(dfalUSMAM)
+dfneuusMAM = load_datanusMAM(dfnUSMAM)
+dfdiffusMAM = recomb_data(dfneuusMAM, dfaltusMAM)
+csv_data = dfdiffusMAM
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusMAM= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusMAM)
+
+dflusMAM["a_diffO"] = (dflusMAM["Altitude"] *-0.002) 
+sum_column = (dflusMAM["Value"]+ dflusMAM["a_diffO"])
+dflusMAM['O18ad'] = sum_column
+df = dflusMAM.drop('a_diffO',inplace=True, axis=1)
+print(dflusMAM)
+
+
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusneuMAM= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusneuMAM)
+
+dflusneuMAM["a_diffO"] = (dflusneuMAM["Altitude"] *-0.002) 
+sum_column = (dflusneuMAM["Value"]+ dflusneuMAM["a_diffO"])
+dflusneuMAM['O18nd'] = sum_column
+df = dflusneuMAM.drop('a_diffO',inplace=True, axis=1)
+print(dflusneuMAM)
+
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusdiffMAM= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusdiffMAM)
+
+dflusdiffMAM["a_diffO"] = (dflusdiffMAM["Altitude"] *-0.002) 
+sum_column = (dflusdiffMAM["Value"]+ dflusdiffMAM["a_diffO"])
+dflusdiffMAM['O18d'] = sum_column
+df = dflusdiffMAM.drop('a_diffO',inplace=True, axis=1)
+print(dflusdiffMAM)
+
+
+
+#Change and elevation USA JJA
+dfaltusJJA = load_datausJJA(dfalUSJJA)
+dfneuusJJA = load_datanusJJA(dfnUSJJA)
+dfdiffusJJA = recomb_data(dfneuusJJA, dfaltusJJA)
+csv_data = dfdiffusJJA
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusJJA= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusJJA)
+dflusJJA["a_diffO"] = (dflusJJA["Altitude"] *-0.002) 
+sum_column = (dflusJJA["Value"]+ dflusJJA["a_diffO"])
+dflusJJA['O18ad'] = sum_column
+df = dflusJJA.drop('a_diffO',inplace=True, axis=1)
+print(dflusJJA)
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusneuJJA= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusneuJJA)
+dflusneuJJA["a_diffO"] = (dflusneuJJA["Altitude"] *-0.002) 
+sum_column = (dflusneuJJA["Value"]+ dflusneuJJA["a_diffO"])
+dflusneuJJA['O18nd'] = sum_column
+df = dflusneuJJA.drop('a_diffO',inplace=True, axis=1)
+print(dflusneuJJA)
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusdiffJJA= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusdiffJJA)
+dflusdiffJJA["a_diffO"] = (dflusdiffJJA["Altitude"] *-0.002) 
+sum_column = (dflusdiffJJA["Value"]+ dflusdiffJJA["a_diffO"])
+dflusdiffJJA['O18d'] = sum_column
+df = dflusdiffJJA.drop('a_diffO',inplace=True, axis=1)
+print(dflusdiffJJA)
+
+
+
+#Change and elevation USA SON
+dfaltusSON = load_datausSON(dfalUSSON)
+dfneuusSON = load_datanusSON(dfnUSSON)
+dfdiffusSON = recomb_data(dfneuusSON, dfaltusSON)
+print(dfdiffusSON)
+csv_data = dfdiffusSON
+num_el = csv_data.iloc[:, 0]
+lat = csv_data['Latitude']
+lon = csv_data['Longitude']
+value = csv_data['O18a']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusSON= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusSON)
+
+dflusSON["a_diffO"] = (dflusSON["Altitude"] *-0.002) 
+sum_column = (dflusSON["Value"]+ dflusSON["a_diffO"])
+dflusSON['O18ad'] = sum_column
+df = dflusSON.drop('a_diffO',inplace=True, axis=1)
+print(dflusSON)
+
+
+value = csv_data['O18n']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusneuSON= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusneuSON)
+
+dflusneuSON["a_diffO"] = (dflusneuSON["Altitude"] *-0.002) 
+sum_column = (dflusneuSON["Value"]+ dflusneuSON["a_diffO"])
+dflusneuSON['O18nd'] = sum_column
+df = dflusneuSON.drop('a_diffO',inplace=True, axis=1)
+print(dflusneuSON)
+
+
+value = csv_data['Diff']
+data = Dataset("C:/Users/Oliver Weisser/Desktop/Bachelor/Programm/Daten/Daten/ETOPO1_Bed_g_gdal.grd",'r')
+lon_range = data.variables['x_range'][:]
+lat_range = data.variables['y_range'][:][::-1]
+topo_range = data.variables['z_range'][:]
+spacing = data.variables['spacing'][:]
+dimension = data.variables['dimension'][:]
+z = data.variables['z'][:]
+lon_num =  dimension[0]
+lat_num =  dimension[1]
+etopo_lon = np.linspace(lon_range[0],lon_range[1],dimension[0])
+etopo_lat = np.linspace(lat_range[0],lat_range[1],dimension[1])
+topo = np.reshape(z, (lat_num, lon_num))
+
+height = np.empty_like(num_el)
+desired_lat_idx = np.empty_like(num_el)
+desired_lon_idx = np.empty_like(num_el)
+for i in range(len(num_el)): 
+    tmp_lat = np.abs(etopo_lat - lat[i]).argmin()
+    tmp_lon = np.abs(etopo_lon - lon[i]).argmin()
+    desired_lat_idx[i] = tmp_lat
+    desired_lon_idx[i] = tmp_lon
+    height[i] = topo[tmp_lat,tmp_lon]
+height[height<-10]=0 
+
+dflusdiffSON= pd.DataFrame({
+    'Latitude' : lat.values.reshape(-1),
+    'Longitude': lon.values.reshape(-1),
+    'Altitude': height.reshape(-1),#[::-1],
+    'Value': value.values.reshape(-1),
+});
+print(dflusdiffSON)
+
+dflusdiffSON["a_diffO"] = (dflusdiffSON["Altitude"] *-0.002) 
+sum_column = (dflusdiffSON["Value"]+ dflusdiffSON["a_diffO"])
+dflusdiffSON['O18d'] = sum_column
+df = dflusdiffSON.drop('a_diffO',inplace=True, axis=1)
+print(dflusdiffSON)
